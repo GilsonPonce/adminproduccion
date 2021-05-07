@@ -1,3 +1,4 @@
+
 import { createStore } from 'vuex'
 
 export default createStore({
@@ -5,6 +6,7 @@ export default createStore({
     token: null,
     formulario: false,
     editar: false,
+    id: 0,
     objetoEditar: {},
     msm: [],
     urlLogin: "http://localhost:8080/api/login",
@@ -22,20 +24,20 @@ export default createStore({
     urlPersonal: "http://localhost:8080/api/personal",
     urlUsuario: "http://localhost:8080/api/usuario",
     urlConfiguracion: "http://localhost:8080/api/configuracion",
-    material:[],
-    tipo_material:[],
-    tipo_desperdicio:[],
+    material: [],
+    tipo_material: [],
+    tipo_desperdicio: [],
     color: [],
     linea: [],
-    proceso:[],
-    scrap:[],
-    informe:[],
-    materia_prima:[],
-    producto_terminado:[],
-    registro:[],
-    personal:[],
-    configuracion:[],
-    usuario:[],
+    proceso: [],
+    scrap: [],
+    informe: [],
+    materia_prima: [],
+    producto_terminado: [],
+    registro: [],
+    personal: [],
+    configuracion: [],
+    usuario: [],
   },
   mutations: {
     setColor(state, payload) {
@@ -239,6 +241,8 @@ export default createStore({
             formdata.append("pass", objeto.pass);
             break;
           case "informe":
+            formdata.append("id_informe", objeto.id_informe);
+            formdata.append("id", objeto.id);
             formdata.append("turno", objeto.turno);
             formdata.append("saldo_anterior", objeto.saldo_anterior);
             formdata.append("observacion", objeto.observacion);
@@ -446,7 +450,7 @@ export default createStore({
           case "producto_terminado":
             urlencoded.append("id_producto_terminado", objeto.id_producto_terminado);
             urlencoded.append("id_informe", objeto.id_informe);
-            urlencoded.append("id_color",objeto.id_color);
+            urlencoded.append("id_color", objeto.id_color);
             urlencoded.append("peso", objeto.peso);
             urlencoded.append("tipo", objeto.tipo);
             break;
@@ -486,7 +490,7 @@ export default createStore({
             urlencoded.append("id_material", objeto.id_material);
             urlencoded.append("id_tipo_material", objeto.id_tipo_material);
             break;
-        
+
         }
 
         var requestOptions = {
@@ -497,7 +501,7 @@ export default createStore({
         };
 
         let res = null;
-        switch(objeto.pagina){
+        switch (objeto.pagina) {
           case "color":
             res = await fetch(state.urlColor + "/" + objeto.id_color, requestOptions)
             break;
@@ -541,7 +545,7 @@ export default createStore({
             res = await fetch(state.urlInforme + "/" + objeto.id_informe, requestOptions)
             break;
         }
-        
+
         const data = await res.json();
         commit("setmsm", data)
 
@@ -554,6 +558,33 @@ export default createStore({
   modules: {
   },
   getters: {
-
+    getFiltroPT(state) {
+      if (state.producto_terminado.detalle != undefined) {
+        return state.producto_terminado.detalle.filter((obj) =>
+          obj.id_informe == state.id
+        )
+      }
+    },
+    getFiltroMP(state) {
+      if (state.materia_prima.detalle != undefined) {
+        return state.materia_prima.detalle.filter((obj) =>
+          obj.id_informe == state.id
+        )
+      }
+    },
+    getFiltroSRP(state) {
+      if (state.scrap.detalle != undefined) {
+        return state.scrap.detalle.filter((obj) =>
+          obj.id_informe == state.id
+        )
+      }
+    },
+    getFiltroRGT(state) {
+      if (state.registro.detalle != undefined) {
+        return state.registro.detalle.filter((obj) =>
+          obj.id_informe == state.id
+        )
+      }
+    }
   }
 })

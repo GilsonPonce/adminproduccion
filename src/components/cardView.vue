@@ -40,8 +40,8 @@
           <li><router-link class="dropdown-item" href="#" :to="`/scrap/${informe.id_informe}`" >Scrap</router-link></li>
           <li><router-link class="dropdown-item" href="#" :to="`/registro/${informe.id_informe}`" >Registro Personal</router-link></li>
           <li><hr class="dropdown-divider" /></li>
-          <li><a class="dropdown-item" href="#" >Editar Informe</a></li>
-          <li><a class="dropdown-item" href="#" >Eliminar Informe</a></li>
+          <li><a class="dropdown-item" href="#" @click="activarForm">Editar Informe</a></li>
+          <li><a class="dropdown-item" href="#" @click="eliminarInforme(informe)">Eliminar Informe</a></li>
           <li><a class="dropdown-item" href="#" >Descarga</a></li>
         </ul>
       </div>
@@ -51,9 +51,15 @@
 
 <script>
 import { computed } from "vue";
+import { useStore } from 'vuex';
 export default {
   props: ["informe"],
   setup(props) {
+
+    const store = useStore();
+
+  
+
     const estiloCompletado = computed(() => {
       return props.informe.completado == "1"
         ? " card text-start border-success"
@@ -64,7 +70,29 @@ export default {
         ? " card-header bg-transparent border-success"
         : "card-header bg-transparent border-danger";
     });
-    return { estiloCompletado, estiloCompletadoHeard };
+
+    const activarForm = () => {
+      store.state.objetoEditar = props.informe
+      store.state.formulario = true
+      store.state.editar = true
+
+    }
+
+    const eliminarInforme = (objeto)=>{
+      objeto.pagina = "informe"
+      store.dispatch("deleteData",objeto)
+      store.dispatch("fetchData","informe")
+      if(store.state.informe.status != 200){
+        swal(
+              "Lo siento, se ha producido un error",
+              "Ponte en contacto con el administrador",
+              "error"
+            );
+      }
+
+    }
+
+    return { estiloCompletado, estiloCompletadoHeard, activarForm, eliminarInforme };
   },
 };
 </script>

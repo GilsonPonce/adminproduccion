@@ -20,7 +20,7 @@
               />
             </div>
           </div>
-          <div class="col-3 ">
+          <div class="col-3">
             <select
               class="form-select form-select-sm"
               aria-label=".form-select-sm example"
@@ -35,7 +35,7 @@
               </option>
             </select>
           </div>
-          <div class="col-2 ">
+          <div class="col-2">
             <button
               class="btn btn-sm btn-primary"
               type="button"
@@ -86,10 +86,37 @@
               <th scope="row" v-if="pagina === 'producto_terminado'">
                 {{ value.id_producto_terminado }}
               </th>
+              <th scope="row" v-if="pagina === 'materia_prima'">
+                {{ value.id_materia_prima }}
+              </th>
+              <th scope="row" v-if="pagina === 'scrap'">
+                {{ value.id_scrap }}
+              </th>
+              <td v-if="pagina === 'registro'">
+                {{ value.fecha_hora_inicio }}
+              </td>
+              <td v-if="pagina === 'registro'">
+                {{ value.fecha_hora_fin }}
+              </td>
+              <td v-if="pagina === 'registro'">
+                {{ value.activo == 1 ? 'Si' : 'No' }}
+              </td>
+              <th scope="row" v-if="pagina === 'registro'">
+                {{ value.id_registro }}
+              </th>
+              <td v-if="pagina === 'registro'">
+                {{ value.personal }}
+              </td>
               <td v-if="pagina === 'producto_terminado'">
                 {{ value.color }}
               </td>
-              <td v-if="pagina === 'producto_terminado'">
+              <td v-if="pagina === 'scrap'">
+                {{ value.motivo }}
+              </td>
+              <td v-if="pagina === 'scrap'">
+                {{ value.sacos }}
+              </td>
+              <td v-if="habilitarPeso">
                 {{ value.peso }}
               </td>
               <td v-if="pagina === 'producto_terminado'">
@@ -107,6 +134,9 @@
               <td v-if="habilitarTipoMaterial">
                 {{ value.tipo_material }}
               </td>
+              <td v-if="pagina === 'materia_prima'">
+                {{ value.color }}
+              </td>
               <td v-if="pagina === 'configuracion'">
                 {{ value.estado == 1 ? "Habilitado" : "Deshabilitado" }}
               </td>
@@ -120,7 +150,7 @@
                 {{ value.tarifa_kilogramo_producidos }}
               </td>
               <td v-if="habilitarNombre">{{ value.nombre }}</td>
-               <td v-if="pagina === 'personal'">
+              <td v-if="pagina === 'personal'">
                 {{ value.apellido }}
               </td>
               <td v-if="pagina === 'personal'">
@@ -243,6 +273,27 @@ export default {
             head = ["#", "nombre", "linea"];
           }
           break;
+        case "materia_prima":
+          if (store.state.materia_prima.length != 0) {
+            onedata = store.state.materia_prima.detalle[0];
+          } else {
+            head = ["#", "nombre", "linea"];
+          }
+          break;
+        case "scrap":
+          if (store.state.scrap.length != 0) {
+            onedata = store.state.scrap.detalle[0];
+          } else {
+            head = ["#", "nombre", "linea"];
+          }
+          break;
+        case "registro":
+          if (store.state.registro.length != 0) {
+            onedata = store.state.registro.detalle[0];
+          } else {
+            head = ["#", "nombre", "linea"];
+          }
+          break;
         default:
           head = ["#", "nombre"];
       }
@@ -317,6 +368,21 @@ export default {
             onedata = store.state.producto_terminado.detalle[0];
           }
           break;
+        case "materia_prima":
+          if (store.state.materia_prima.length != 0) {
+            onedata = store.state.materia_prima.detalle[0];
+          }
+          break;
+        case "scrap":
+          if (store.state.scrap.length != 0) {
+            onedata = store.state.scrap.detalle[0];
+          }
+          break;
+        case "registro":
+          if (store.state.registro.length != 0) {
+            onedata = store.state.registro.detalle[0];
+          }
+          break;
       }
       for (const name in onedata) {
         h.push(name);
@@ -352,7 +418,16 @@ export default {
           arrdata = store.state.personal.detalle;
           break;
         case "producto_terminado":
-          arrdata = store.state.producto_terminado.detalle;
+          arrdata = store.getters.getFiltroPT;
+          break;
+        case "materia_prima":
+          arrdata = store.getters.getFiltroMP;
+          break;
+        case "scrap":
+          arrdata = store.getters.getFiltroSRP;
+          break;
+        case "registro":
+          arrdata = store.getters.getFiltroRGT;
           break;
       }
       if (valorBuscar.value != "" && valorParametro.value != "") {
@@ -388,7 +463,16 @@ export default {
             return store.state.personal.detalle;
             break;
           case "producto_terminado":
-            return store.state.producto_terminado.detalle;
+            return store.getters.getFiltroPT;
+            break;
+          case "materia_prima":
+            return store.getters.getFiltroMP;
+            break;
+          case "scrap":
+            return store.getters.getFiltroSRP;
+            break;
+          case "registro":
+            return store.getters.getFiltroRGT;
             break;
         }
       }
@@ -433,61 +517,77 @@ export default {
       }
     };
 
-     const habilitarNombre = computed(()=>{
-       let v1 = props.pagina == "color";
-       let v2 = props.pagina == "linea";
-       let v3 = props.pagina == "tipo_material";
-       let v4 = props.pagina == "material";
-       let v5 = props.pagina == "tipo_desperdicio";
-       let v6 = props.pagina == "proceso";
-       let v7 = props.pagina == "personal";
-       if(v1 || v2 || v3 || v4 || v5 || v6 || v7){
-         return true
-       }else{
-         return false
-       }
-     })
+    const habilitarNombre = computed(() => {
+      let v1 = props.pagina == "color";
+      let v2 = props.pagina == "linea";
+      let v3 = props.pagina == "tipo_material";
+      let v4 = props.pagina == "material";
+      let v5 = props.pagina == "tipo_desperdicio";
+      let v6 = props.pagina == "proceso";
+      let v7 = props.pagina == "personal";
+      if (v1 || v2 || v3 || v4 || v5 || v6 || v7) {
+        return true;
+      } else {
+        return false;
+      }
+    });
 
-     const habilitarLinea = computed(()=>{
-       let v1 = props.pagina == "configuracion";
-       let v2 = props.pagina == "producto_terminado";
-    
-       if(v1 || v2 ){
-         return true
-       }else{
-         return false
-       }
-     })
-     const habilitarProceso = computed(()=>{
-       let v1 = props.pagina == "configuracion";
-       let v2 = props.pagina == "producto_terminado";
-    
-       if(v1 || v2 ){
-         return true
-       }else{
-         return false
-       }
-     })
-     const habilitarMaterial = computed(()=>{
-       let v1 = props.pagina == "configuracion";
-       let v2 = props.pagina == "producto_terminado";
-    
-       if(v1 || v2 ){
-         return true
-       }else{
-         return false
-       }
-     })
-     const habilitarTipoMaterial = computed(()=>{
-       let v1 = props.pagina == "configuracion";
-       let v2 = props.pagina == "producto_terminado";
-    
-       if(v1 || v2 ){
-         return true
-       }else{
-         return false
-       }
-     })
+    const habilitarLinea = computed(() => {
+      let v1 = props.pagina == "configuracion";
+      let v2 = props.pagina == "producto_terminado";
+      let v3 = props.pagina == "materia_prima";
+
+      if (v1 || v2 || v3) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+    const habilitarProceso = computed(() => {
+      let v1 = props.pagina == "configuracion";
+      let v2 = props.pagina == "producto_terminado";
+      let v3 = props.pagina == "materia_prima";
+
+      if (v1 || v2 || v3) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+    const habilitarMaterial = computed(() => {
+      let v1 = props.pagina == "configuracion";
+      let v2 = props.pagina == "producto_terminado";
+      let v3 = props.pagina == "materia_prima";
+
+      if (v1 || v2 || v3) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+    const habilitarTipoMaterial = computed(() => {
+      let v1 = props.pagina == "configuracion";
+      let v2 = props.pagina == "producto_terminado";
+
+      let v3 = props.pagina == "materia_prima";
+
+      if (v1 || v2 || v3) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+     const habilitarPeso = computed(() => {
+      let v2 = props.pagina == "producto_terminado";
+      let v3 = props.pagina == "materia_prima";
+      let v4 = props.pagina == "scrap";
+
+      if ( v2 || v3 || v4) {
+        return true;
+      } else {
+        return false;
+      }
+    });
 
     return {
       header,
@@ -500,6 +600,7 @@ export default {
       habilitarProceso,
       habilitarMaterial,
       habilitarTipoMaterial,
+      habilitarPeso,
       editar,
       valorBuscar,
       valorParametro,
@@ -516,11 +617,12 @@ export default {
 .nombreTabla {
   margin-bottom: 0px;
 }
-#cuerpoTabla th, #cuerpoTabla td {
+#cuerpoTabla th,
+#cuerpoTabla td {
   font-size: 10px;
   font-weight: 700;
 }
-#encabezadoTabla th{
+#encabezadoTabla th {
   font-size: 12px;
 }
 </style>

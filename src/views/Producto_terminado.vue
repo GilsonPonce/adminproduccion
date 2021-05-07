@@ -4,7 +4,7 @@
 
 <script>
 import tableShow from "@/components/tableShow.vue";
-import { onUpdated,onMounted } from 'vue';
+import { onUpdated,onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex';
 export default {
@@ -16,6 +16,7 @@ setup(){
 
     const route = useRoute();
     const store = useStore();
+ 
     
     onMounted(async () => {
       await store.dispatch("fetchData", "producto_terminado");
@@ -26,9 +27,7 @@ setup(){
     });
 
     const filtroProductoTerminado = () => {
-       setTimeout(()=>{
-            store.state.producto_terminado = store.state.producto_terminado.detalle.filter((ob)=>ob.id_informe == route.params.id);
-       },500);
+        store.state.id = route.params.id
     }
     filtroProductoTerminado();
 
