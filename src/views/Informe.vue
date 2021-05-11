@@ -1,10 +1,10 @@
 <template>
-<div v-if="activarFormulario">
+  <div v-if="activarFormulario">
     <div class="contenedor">
       <div class="modelo">
-          <div>
-              <formInforme />
-          </div>
+        <div>
+          <formInforme />
+        </div>
       </div>
     </div>
   </div>
@@ -97,8 +97,10 @@ export default {
       if (valorBuscar.value != "" && valorParametro.value != "") {
         if (store.state.informe != undefined || store.state.informe != null) {
           return store.state.informe.detalle.filter(
-            (obj) => obj[valorParametro.value].indexOf(valorBuscar.value.toUpperCase()) >
-            -1
+            (obj) =>
+              obj[valorParametro.value].indexOf(
+                valorBuscar.value.toUpperCase()
+              ) > -1
           );
         }
       } else {
@@ -107,20 +109,37 @@ export default {
     });
 
     const opciones = computed(() => {
-      let h = ["id_informe","id","fecha","turno","completado","linea","proceso","material","tipo_material"];
+      let h = [
+        "id_informe",
+        "id",
+        "fecha",
+        "turno",
+        "completado",
+        "linea",
+        "proceso",
+        "material",
+        "tipo_material",
+      ];
       return h;
     });
 
-    const activar = computed(()=>{
-      console.log("activar")
+    const activar = computed(() => {
+      console.log("activar");
       store.state.formulario = true;
-    })
+    });
 
-    const activarFormulario = computed(()=>{
-      return store.state.formulario
-    })
+    const activarFormulario = computed(() => {
+      return store.state.formulario;
+    });
 
-    return { informenes,opciones, valorBuscar, activar, valorParametro, activarFormulario };
+    return {
+      informenes,
+      opciones,
+      valorBuscar,
+      activar,
+      valorParametro,
+      activarFormulario,
+    };
   },
 };
 </script>

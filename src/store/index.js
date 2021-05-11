@@ -466,6 +466,7 @@ export default createStore({
             urlencoded.append("fecha_hora_fin", objeto.fecha_hora_fin);
             urlencoded.append("id_personal", objeto.id_personal);
             urlencoded.append("id_informe", objeto.id_informe);
+            urlencoded.append("activo", objeto.activo);
             break;
           case "usuario":
             urlencoded.append("id_usuario", objeto.id_usuario);
