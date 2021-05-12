@@ -295,7 +295,7 @@ export default createStore({
             res = await fetch(state.urlMateria_prima, requestOptions)
             break;
           case "scrap":
-            res = await fetch(state.scrap, requestOptions)
+            res = await fetch(state.urlScrap, requestOptions)
             break;
           case "producto_terminado":
             res = await fetch(state.urlProducto_terminado, requestOptions)
@@ -397,7 +397,6 @@ export default createStore({
         myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
 
         var urlencoded = new URLSearchParams();
-
         switch (objeto.pagina) {
           case "color":
             urlencoded.append("id_color", objeto.id_color);
@@ -458,6 +457,7 @@ export default createStore({
             urlencoded.append("id_scrap", objeto.id_scrap);
             urlencoded.append("motivo", objeto.motivo);
             urlencoded.append("sacos", objeto.sacos);
+            urlencoded.append("peso", objeto.peso);
             urlencoded.append("id_informe", objeto.id_informe);
             break;
           case "registro":
@@ -549,6 +549,7 @@ export default createStore({
 
         const data = await res.json();
         commit("setmsm", data)
+        console.log(data)
 
       } catch (error) {
         console.log(error)
