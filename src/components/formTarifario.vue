@@ -2,7 +2,9 @@
   <div class="container">
     <div class="row">
       <div class="col-4">
-        <label for="nombre" class="form-label form-label-sm">Kilogramos Diarios:</label>
+        <label for="nombre" class="form-label form-label-sm"
+          >Kilogramos Diarios:</label
+        >
         <input
           type="number"
           id="kilogramos_diarios"
@@ -11,7 +13,9 @@
         />
       </div>
       <div class="col-4">
-        <label for="nombre" class="form-label form-label-sm">Kilogramos Hora:</label>
+        <label for="nombre" class="form-label form-label-sm"
+          >Kilogramos Hora:</label
+        >
         <input
           type="number"
           id="kilogramos_horas"
@@ -20,7 +24,9 @@
         />
       </div>
       <div class="col-4">
-        <label for="nombre" class="form-label form-label-sm">Tarifa Kilogramos Producidos:</label>
+        <label for="nombre" class="form-label form-label-sm"
+          >Tarifa Kilogramos Producidos:</label
+        >
         <input
           type="number"
           id="tarifa_kilogramo_producidos"
@@ -38,14 +44,10 @@
           aria-label=".form-select-sm example"
           v-model="estado"
         >
-          <option
-            v-bind:value="1"
-          >
+          <option v-bind:value="1">
             Habilitado
           </option>
-          <option
-            v-bind:value="0"
-          >
+          <option v-bind:value="0">
             Deshabilitado
           </option>
         </select>
@@ -97,11 +99,11 @@
           id="idmaterial"
           class="form-select form-select-sm"
           aria-label=".form-select-sm example"
-          v-model="id_material"
+          v-model="material"
         >
           <option
             v-for="ma in materiales"
-            v-bind:value="ma.id_material"
+            v-bind:value="ma.nombre"
             v-bind:key="ma.id_material"
           >
             {{ ma.nombre }}
@@ -116,11 +118,11 @@
           id="idtipomaterial"
           class="form-select form-select-sm"
           aria-label=".form-select-sm example"
-          v-model="id_tipo_material"
+          v-model="tipo_material"
         >
           <option
             v-for="tm in tipos_materiales"
-            v-bind:value="tm.id_tipo_material"
+            v-bind:value="tm.nombre"
             v-bind:key="tm.id_tipo_material"
           >
             {{ tm.nombre }}
@@ -152,8 +154,8 @@ export default {
     const estado = ref("");
     const id_linea = ref("");
     const id_proceso = ref("");
-    const id_material = ref("");
-    const id_tipo_material = ref("");
+    const material = ref("");
+    const tipo_material = ref("");
 
     onMounted(async () => {
       await store.dispatch("fetchData", "linea");
@@ -171,12 +173,13 @@ export default {
         ) {
           kilogramo_diario.value = store.state.objetoEditar.kilogramo_diario;
           kilogramo_hora.value = store.state.objetoEditar.kilogramo_hora;
-          tarifa_kilogramo_producidos.value = store.state.objetoEditar.tarifa_kilogramo_producidos;
+          tarifa_kilogramo_producidos.value =
+            store.state.objetoEditar.tarifa_kilogramo_producidos;
           estado.value = store.state.objetoEditar.estado;
           id_linea.value = store.state.objetoEditar.id_linea;
           id_proceso.value = store.state.objetoEditar.id_proceso;
-          id_material.value = store.state.objetoEditar.id_material;
-          id_tipo_material.value = store.state.objetoEditar.id_tipo_material;
+          material.value = store.state.objetoEditar.material;
+          tipo_material.value = store.state.objetoEditar.tipo_material;
         } else {
           store.state.formulario = false;
         }
@@ -187,8 +190,8 @@ export default {
         estado.value = "";
         id_linea.value = "";
         id_proceso.value = "";
-        id_material.value = "";
-        id_tipo_material.value = "";
+        material.value = "";
+        tipo_material.value = "";
       }
     };
     inicio();
@@ -198,7 +201,6 @@ export default {
     };
 
     const enviar = () => {
-   
       if (
         kilogramo_diario.value != "" &&
         kilogramo_hora.value != "" &&
@@ -206,8 +208,8 @@ export default {
         (estado.value != "" || estado.value >= 0) &&
         id_linea.value != "" &&
         id_proceso.value != "" &&
-        id_material.value != "" &&
-        id_tipo_material.value != ""
+        material.value != "" &&
+        tipo_material.value != ""
       ) {
         //POST
         if (!store.state.editar) {
@@ -218,31 +220,30 @@ export default {
             estado: estado.value,
             id_linea: id_linea.value,
             id_proceso: id_proceso.value,
-            id_material: id_material.value,
-            id_tipo_material: id_tipo_material.value,
+            material: material.value,
+            tipo_material: tipo_material.value,
             pagina: props.pagina,
           };
           store.dispatch("postData", obj);
-          store.dispatch("fetchData", props.pagina);
-          setTimeout(() => {
-            if (store.state.msm.status != 200) {
-              let mensaje = store.state.msm.detalle
-              swal({
-                title: mensaje,
-                icon: "error",
-              });
-            } else {
-              store.state.formulario = false;
-              kilogramo_diario.value = "";
-              kilogramo_hora.value = "";
-              tarifa_kilogramo_producidos.value = "";
-              estado.value = "";
-              id_linea.value = "";
-              id_proceso.value = "";
-              id_material.value = "";
-              id_tipo_material.value = "";
-            }
-          }, 500);
+          //store.dispatch("fetchData", props.pagina);
+
+          store.state.formulario = false;
+          kilogramo_diario.value = "";
+          kilogramo_hora.value = "";
+          tarifa_kilogramo_producidos.value = "";
+          estado.value = "";
+          id_linea.value = "";
+          id_proceso.value = "";
+          material.value = "";
+          tipo_material.value = "";
+          if (store.state.msm?.status == 404) {
+            let mensaje = store.state.msm?.detalle;
+            swal({
+              title: mensaje,
+              icon: "error",
+            });
+          }
+
           //PUT
         } else {
           let obj = {
@@ -253,35 +254,32 @@ export default {
             estado: estado.value,
             id_linea: id_linea.value,
             id_proceso: id_proceso.value,
-            id_material: id_material.value,
-            id_tipo_material: id_tipo_material.value,
-            pagina: props.pagina
+            material: material.value,
+            tipo_material: tipo_material.value,
+            pagina: props.pagina,
           };
           store.dispatch("putData", obj);
-          store.dispatch("fetchData", props.pagina);
-          setTimeout(() => {
-            if (store.state.msm.status != 200) {
-              store.state.formulario = false;
-              swal({
-                title: "Lo siento, hubo un error",
-                icon: "error",
-              });
-            } else {
-              store.state.formulario = false;
-              kilogramo_diario.value = "";
-              kilogramo_hora.value = "";
-              tarifa_kilogramo_producidos.value = "";
-              estado.value = "";
-              id_linea.value = "";
-              id_proceso.value = "";
-              id_material.value = "";
-              id_tipo_material.value = "";
-            }
-          }, 500);
+          //store.dispatch("fetchData", props.pagina);
+          store.state.formulario = false;
+          kilogramo_diario.value = "";
+          kilogramo_hora.value = "";
+          tarifa_kilogramo_producidos.value = "";
+          estado.value = "";
+          id_linea.value = "";
+          id_proceso.value = "";
+          material.value = "";
+          tipo_material.value = "";
+
+          if (store.state.msm?.status == 404) {
+            swal({
+              title: store.state.msm?.detalle,
+              icon: "error",
+            });
+          }
         }
       } else {
         swal({
-          title: "Nesecito los datos",
+          title: "Se necesita los datos",
           text: "Llena los campos requeridos",
           icon: "warning",
         });
@@ -292,8 +290,10 @@ export default {
       return store.state.linea.detalle;
     });
     const procesos = computed(() => {
-      if(id_linea.value != "" && !store.state.editar){
-        return store.state.proceso.detalle.filter((pro)=> pro.id_linea == id_linea.value );
+      if (id_linea.value != "" && !store.state.editar) {
+        return store.state.proceso.detalle.filter(
+          (pro) => pro.id_linea == id_linea.value
+        );
       }
     });
     const materiales = computed(() => {
@@ -315,8 +315,8 @@ export default {
       tarifa_kilogramo_producidos,
       estado,
       id_proceso,
-      id_material,
-      id_tipo_material,
+      material,
+      tipo_material,
       id_linea,
     };
   },

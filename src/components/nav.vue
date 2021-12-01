@@ -105,26 +105,35 @@
           </li>
         </ul>
       </div>
+      <div class="nombreUsuario">{{getNombreUsuario}}</div>
     </div>
   </nav>
 </template>
 
 <script>
 import { useRoute, useRouter } from "vue-router";
-import { useStore } from "vuex";
+import { Store, useStore } from "vuex";
+import VueCookies from 'vue-cookies';
+import { computed } from '@vue/runtime-core';
 export default {
   setup() {
     const router = useRouter();
     const store = useStore();
     const logout = () => {
       store.state.token = null;
-      localStorage.clear();
+      VueCookies.remove("sesion")
       router.push("/");
     };
-    return{logout}
+    const getNombreUsuario = computed(()=>{
+      return store.state.nombreUsuario
+    })
+    return{logout,getNombreUsuario}
   },
 };
 </script>
 
-<style>
+<style scoped>
+.nombreUsuario{
+  color: white;
+}
 </style>

@@ -86,6 +86,7 @@ export default {
     const activo = ref("");
 
     onMounted(async () => {
+       store.state.loading = true;
       await store.dispatch("fetchData", "personal");
     });
 
@@ -135,28 +136,27 @@ export default {
       //POST
       if (!store.state.editar) {
         if (id_personal.value != "" && id_informe.value != "") {
+          store.state.loading = true;
           let obj = {
             id_personal: id_personal.value,
             id_informe: id_informe.value,
             pagina: "registro",
           };
           store.dispatch("postData", obj);
-          store.dispatch("fetchData", "registro");
-          setTimeout(() => {
-            if (store.state.msm.status != 200) {
-              swal({
-                title: "Lo siento, hubo un error",
-                icon: "error",
-              });
-            } else {
-              store.state.formulario = false;
-              activo.value = "";
-              id_informe.value = route.params.id;
-              id_personal.value = "";
-              fecha_hora_fin.value = "";
-              fecha_hora_inicio.value = "";
-            }
-          }, 500);
+          //store.dispatch("fetchData", "registro");
+          store.state.formulario = false;
+          activo.value = "";
+          id_informe.value = route.params.id;
+          id_personal.value = "";
+          fecha_hora_fin.value = "";
+          fecha_hora_inicio.value = "";
+
+          if (store.state.msm.status == 404) {
+            swal({
+              title: store.state.msm?.detalle,
+              icon: "error",
+            });
+          }
         } else {
           swal({
             title: "Nesecito los datos",
@@ -173,6 +173,7 @@ export default {
           id_informe.value != "" &&
           activo.value != ""
         ) {
+          store.state.loading = true;
           let obj = {
             id_registro: store.state.objetoEditar.id_registro,
             id_informe: id_informe.value,
@@ -183,26 +184,22 @@ export default {
             pagina: "registro",
           };
           store.dispatch("putData", obj);
-          store.dispatch("fetchData", "registro");
-          setTimeout(() => {
-            console.log(store.state.msm.status);
-            if (store.state.msm.status != "200") {
-              store.state.formulario = false;
-              swal({
-                title: "Lo siento, hubo un error",
-                icon: "error",
-              });
-            } else {
-              store.state.formulario = false;
-              store.state.editar = false;
-              store.state.objetoEditar = {};
-              activo.value = "";
-              id_informe.value = route.params.id;
-              id_personal.value = "";
-              fecha_hora_fin.value = "";
-              fecha_hora_inicio.value = "";
-            }
-          }, 500);
+          //store.dispatch("fetchData", "registro");
+          store.state.formulario = false;
+          store.state.editar = false;
+          store.state.objetoEditar = {};
+          activo.value = "";
+          id_informe.value = route.params.id;
+          id_personal.value = "";
+          fecha_hora_fin.value = "";
+          fecha_hora_inicio.value = "";
+
+          if (store.state.msm?.status == 404) {
+            swal({
+              title: store.state.msm?.detalle,
+              icon: "error",
+            });
+          }
         } else {
           swal({
             title: "Nesecito los datos",

@@ -51,22 +51,27 @@ export default {
     const id_linea = ref("");
 
     onMounted(async () => {
+      store.state.loading = true;
       await store.dispatch("fetchData", "linea");
     });
 
     const inicio = () => {
-      if(store.state.editar){
-        if(store.state.objetoEditar != null || store.state.objetoEditar != undefined || store.state.objetoEditar != ""){
+      if (store.state.editar) {
+        if (
+          store.state.objetoEditar != null ||
+          store.state.objetoEditar != undefined ||
+          store.state.objetoEditar != ""
+        ) {
           nombre.value = store.state.objetoEditar.nombre;
           id_linea.value = store.state.objetoEditar.id_linea;
-        }else{
+        } else {
           store.state.formulario = false;
         }
-      }else{
+      } else {
         nombre.value = "";
         id_linea.value = "";
       }
-    }
+    };
     inicio();
 
     const cerrar = () => {
@@ -77,47 +82,45 @@ export default {
       if (nombre.value != "" && id_linea.value != "") {
         //POST
         if (!store.state.editar) {
+          store.state.loading = true;
           let obj = {
             nombre: nombre.value,
             id_linea: id_linea.value,
             pagina: props.pagina,
           };
           store.dispatch("postData", obj);
-          store.dispatch("fetchData", props.pagina);
-          setTimeout(() => {
-            if (store.state.msm.status != 200) {
-              swal({
-                title: "Lo siento, hubo un error",
-                icon: "error",
-              });
-            } else {
-              store.state.formulario = false;
-              nombre.value = "";
-              id_linea = "";
-            }
-          }, 300);
+          //store.dispatch("fetchData", props.pagina);
+          store.state.formulario = false;
+          nombre.value = "";
+          id_linea = "";
+
+          if (store.state.msm?.status == 404) {
+            swal({
+              title: store.state.msm?.detalle,
+              icon: "error",
+            });
+          }
+
           //PUT
         } else {
           let obj = {
             id_proceso: store.state.objetoEditar.id_proceso,
             nombre: nombre.value,
             id_linea: id_linea.value,
-            pagina: props.pagina
+            pagina: props.pagina,
           };
           store.dispatch("putData", obj);
-          store.dispatch("fetchData", props.pagina);
-          setTimeout(() => {
-            if (store.state.msm.status != 200) {
-              swal({
-                title: "Lo siento, hubo un error",
-                icon: "error",
-              });
-            } else {
-              store.state.formulario = false;
-              nombre.value = "";
-              id_linea = "";
-            }
-          }, 300);
+          //store.dispatch("fetchData", props.pagina);
+          store.state.formulario = false;
+          nombre.value = "";
+          id_linea = "";
+
+          if (store.state.msm?.status == 404) {
+            swal({
+              title: store.state.msm?.detalle,
+              icon: "error",
+            });
+          }
         }
       } else {
         swal({

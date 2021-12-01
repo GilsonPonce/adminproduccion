@@ -3,12 +3,12 @@
     <div class="contenedor">
       <div class="modelo">
         <div>
-          <FormUno pagina="tipo_desperdicio" />
+          <FormUno pagina="tipo_scrap" />
         </div>
       </div>
     </div>
   </div>
-  <TableShow nombreTabla="Configuracion" pagina="tipo_desperdicio" />
+  <TableShow nombreTabla="Configuracion" pagina="tipo_scrap" />
 </template>
 
 <script>

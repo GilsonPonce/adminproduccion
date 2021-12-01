@@ -2,9 +2,7 @@
   <div class="container">
     <div class="row">
       <div class="col-12 mt-2">
-        <label for="motivo" class="form-label form-label-sm"
-          >Motivo:</label
-        >
+        <label for="motivo" class="form-label form-label-sm">Motivo:</label>
         <select
           id="motivo"
           class="form-select form-select-sm"
@@ -21,9 +19,7 @@
         </select>
       </div>
       <div class="col-12 mt-3">
-        <label for="sacos" class="form-label form-label-sm"
-          >Sacos:</label
-        >
+        <label for="sacos" class="form-label form-label-sm">Sacos:</label>
         <input
           type="numeric"
           id="sacos"
@@ -32,9 +28,7 @@
         />
       </div>
       <div class="col-12 mt-3">
-        <label for="peso" class="form-label form-label-sm"
-          >Peso:</label
-        >
+        <label for="peso" class="form-label form-label-sm">Peso:</label>
         <input
           type="numeric"
           id="peso"
@@ -68,6 +62,7 @@ export default {
     const id_informe = ref("");
 
     onMounted(async () => {
+      store.state.loading = true;
       await store.dispatch("fetchData", "tipo_desperdicio");
     });
 
@@ -113,6 +108,7 @@ export default {
         motivo.value != ""
       ) {
         if (!store.state.editar) {
+          store.state.loading = true;
           let obj = {
             id_informe: id_informe.value,
             peso: peso.value,
@@ -121,20 +117,19 @@ export default {
             pagina: "scrap",
           };
           store.dispatch("postData", obj);
-          store.dispatch("fetchData", "scrap");
-          setTimeout(() => {
-            if (store.state.msm.status != 200) {
-              swal({
-                title: "Lo siento, hubo un error",
-                icon: "error",
-              });
-            } else {
-              cerrar();
-            }
-          }, 500);
+          //store.dispatch("fetchData", "scrap");
+          cerrar();
+
+          if (store.state.msm?.status == 404) {
+            swal({
+              title: store.state.msm?.detalle,
+              icon: "error",
+            });
+          }
 
           //PUT
         } else {
+          store.state.loading = true;
           let obj = {
             id_scrap: store.state.objetoEditar.id_scrap,
             id_informe: id_informe.value,
@@ -144,18 +139,15 @@ export default {
             pagina: "scrap",
           };
           store.dispatch("putData", obj);
-          store.dispatch("fetchData", "scrap");
-          setTimeout(() => {
-            if (store.state.msm.status != "200") {
-              store.state.formulario = false;
-              swal({
-                title: "Lo siento, hubo un error",
-                icon: "error",
-              });
-            } else {
-              cerrar();
-            }
-          }, 500);
+          //store.dispatch("fetchData", "scrap");
+          cerrar();
+
+          if (store.state.msm?.status == 404) {
+            swal({
+              title: tore.state.msm?.detalle,
+              icon: "error",
+            });
+          }
         }
       } else {
         swal({

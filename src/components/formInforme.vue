@@ -1,5 +1,29 @@
 <template>
   <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-2 mt-3">
+        <label for="idInforme" class="form-label form-label-sm"
+          >Id informe:</label
+        >
+        <input
+          type="number"
+          id="idInforme"
+          class="form-control form-control-sm"
+          v-model="id_informe"
+          disabled
+        />
+      </div>
+      <div class="col-2 mt-3">
+        <label for="id" class="form-label form-label-sm">Id:</label>
+        <input
+          type="number"
+          id="id"
+          class="form-control form-control-sm"
+          v-model="id"
+          disabled
+        />
+      </div>
+    </div>
     <div class="row">
       <div class="col-4 mt-3">
         <label for="idLinea" class="form-label form-label-sm">Linea:</label>
@@ -39,44 +63,7 @@
           </option>
         </select>
       </div>
-      <div class="col-4 mt-3">
-        <label for="idmaterial" class="form-label form-label-sm"
-          >Material:
-        </label>
-        <select
-          id="idmaterial"
-          class="form-select form-select-sm"
-          aria-label=".form-select-sm example"
-          v-model="id_material"
-        >
-          <option
-            v-for="ma in materiales"
-            v-bind:value="ma.id_material"
-            v-bind:key="ma.id_material"
-          >
-            {{ ma.nombre }}
-          </option>
-        </select>
-      </div>
-      <div class="col-4 mt-3">
-        <label for="idtipomaterial" class="form-label form-label-sm"
-          >Tipo de Material:
-        </label>
-        <select
-          id="idtipomaterial"
-          class="form-select form-select-sm"
-          aria-label=".form-select-sm example"
-          v-model="id_tipo_material"
-        >
-          <option
-            v-for="tm in tipos_materiales"
-            v-bind:value="tm.id_tipo_material"
-            v-bind:key="tm.id_tipo_material"
-          >
-            {{ tm.nombre }}
-          </option>
-        </select>
-      </div>
+
       <div class="col-4 mt-3">
         <label for="estado" class="form-label form-label-sm"
           >Completado?:</label
@@ -124,28 +111,7 @@
           :disabled="habilitarFecha"
         />
       </div>
-      <div class="col-2 mt-3">
-        <label for="idInforme" class="form-label form-label-sm"
-          >Id informe:</label
-        >
-        <input
-          type="number"
-          id="idInforme"
-          class="form-control form-control-sm"
-          v-model="id_informe"
-          disabled
-        />
-      </div>
-      <div class="col-2 mt-3">
-        <label for="id" class="form-label form-label-sm">Id:</label>
-        <input
-          type="number"
-          id="id"
-          class="form-control form-control-sm"
-          v-model="id"
-          disabled
-        />
-      </div>
+
       <div class="col-12 mt-3">
         <label for="observacion">Observacion: </label>
         <textarea
@@ -181,8 +147,6 @@ export default {
   setup(props) {
     const store = useStore();
 
-    const id_material = ref("");
-    const id_tipo_material = ref("");
     const id_linea = ref("");
     const id_proceso = ref("");
     const completado = ref("");
@@ -194,17 +158,16 @@ export default {
     const turno = ref("");
 
     onMounted(() => {
+      store.state.loading = true;
       store.dispatch("fetchData", "linea");
       store.dispatch("fetchData", "proceso");
-      store.dispatch("fetchData", "tipo_material");
-      store.dispatch("fetchData", "material");
     });
 
-    const falseFormulario = computed(() => {
+    const falseFormulario = () => {
       store.state.editar = false;
       store.state.objetoEditar = {};
       store.state.formulario = false;
-    });
+    };
 
     const inicio = () => {
       if (store.state.editar) {
@@ -217,8 +180,6 @@ export default {
         completado.value = store.state.objetoEditar.completado;
         id_linea.value = store.state.objetoEditar.id_linea;
         id_proceso.value = store.state.objetoEditar.id_proceso;
-        id_material.value = store.state.objetoEditar.id_material;
-        id_tipo_material.value = store.state.objetoEditar.id_tipo_material;
       } else {
         id.value = "";
         id_informe.value = "";
@@ -229,8 +190,6 @@ export default {
         completado.value = "";
         id_linea.value = "";
         id_proceso.value = "";
-        id_material.value = "";
-        id_tipo_material.value = "";
       }
     };
     inicio();
@@ -238,6 +197,7 @@ export default {
     const postData = computed(() => {
       //POST
       if (!store.state.editar) {
+        store.state.loading = true;
         let obje = {
           id_informe: id_informe.value,
           id: id.value,
@@ -247,34 +207,31 @@ export default {
           observacion: observacion.value,
           completado: completado.value,
           id_proceso: id_proceso.value,
-          id_material: id_material.value,
-          id_tipo_material: id_tipo_material.value,
           pagina: "informe",
         };
         store.dispatch("postData", obje);
-        store.dispatch("fetchData", "informe");
-        setTimeout(() => {
-          if (store.state.msm.status == 200) {
-            id.value = "";
-            id_informe.value = "";
-            fecha.value = "";
-            turno.value = "";
-            turno.value = "";
-            saldo_anterior.value = "";
-            observacion.value = "";
-            completado.value = "";
-            id_linea.value = "";
-            id_proceso.value = "";
-            id_material.value = "";
-            id_tipo_material.value = "";
-            store.commit("falseFormulario");
-          } else {
-            store.commit("falseFormulario");
-            swal("Error en registros", "", "warning");
-          }
-        }, 500);
+        //store.dispatch("fetchData", "informe");
+
+        id.value = "";
+        id_informe.value = "";
+        fecha.value = "";
+        turno.value = "";
+        turno.value = "";
+        saldo_anterior.value = "";
+        observacion.value = "";
+        completado.value = "";
+        id_linea.value = "";
+        id_proceso.value = "";
+        store.commit("falseFormulario");
+
+        if (store.state.msm?.status == 404) {
+          store.commit("falseFormulario");
+          swal(store.state.msm?.detalle, "", "warning");
+        }
+
         //PUT
       } else if (store.state.editar) {
+        store.state.loading = true;
         let obj = {
           id_informe: store.state.objetoEditar.id_informe,
           id: store.state.objetoEditar.id,
@@ -284,37 +241,31 @@ export default {
           observacion: observacion.value,
           completado: completado.value,
           id_proceso: id_proceso.value,
-          id_material: id_material.value,
-          id_tipo_material: id_tipo_material.value,
           pagina: "informe",
         };
         store.dispatch("putData", obj);
-        store.dispatch("fetchData", "informe");
-        setTimeout(() => {
-          if (store.state.msm.status == 200) {
-            store.state.editar = false;
-            store.state.objetoEditar = {};
-            store.state.formulario = false;
-            id.value = "";
-            id_informe.value = "";
-            fecha.value = "";
-            turno.value = "";
-            turno.value = "";
-            saldo_anterior.value = "";
-            observacion.value = "";
-            completado.value = "";
-            id_linea.value = "";
-            id_proceso.value = "";
-            id_material.value = "";
-            id_tipo_material.value = "";
-          } else {
-            swal(
-              "Lo siento, se ha producido un error",
-              "Ponte en contacto con el administrador",
-              "error"
-            );
-          }
-        }, 500);
+        //store.dispatch("fetchData", "informe");
+        store.state.editar = false;
+        store.state.objetoEditar = {};
+        store.state.formulario = false;
+        id.value = "";
+        id_informe.value = "";
+        fecha.value = "";
+        turno.value = "";
+        turno.value = "";
+        saldo_anterior.value = "";
+        observacion.value = "";
+        completado.value = "";
+        id_linea.value = "";
+        id_proceso.value = "";
+
+        if (store.state.msm?.status == 404) {
+          swal(
+            store.state.msm?.detalle,
+            "Ponte en contacto con el administrador",
+            "error"
+          );
+        }
       } else {
         swal(
           "Por favor, llena el campo",
@@ -329,7 +280,7 @@ export default {
     });
 
     const cerrar = computed(() => {
-      store.state.formulario = false;
+      falseFormulario();
     });
 
     const lineas = computed(() => {
@@ -348,23 +299,13 @@ export default {
         }
       }
     });
-    const tipos_materiales = computed(() => {
-      if (store.state.tipo_material.status == 200) {
-        return store.state.tipo_material.detalle;
-      }
-    });
-    const materiales = computed(() => {
-      if (store.state.material.status == 200) {
-        return store.state.material.detalle;
-      }
-    });
 
     const generar_ids = () => {
       if (!store.state.editar) {
         let arrayidinforme = [];
         let arrayidproceso = [];
-        if (store.state.informe.status == 200) {
-          let arraydata = store.state.informe.detalle;
+        if (store.state.informe?.status == 200) {
+          let arraydata = store.state.informe?.detalle;
           let arrayInformenesProceso = arraydata.filter(
             (ob) => ob.id_proceso == id_proceso.value
           ); //obtengo los informenes de este proceso
@@ -377,19 +318,19 @@ export default {
           if (arrayidinforme.length != 0 && arrayidproceso.length != 0) {
             id.value = Math.max(...arrayidproceso) + 1;
             id_informe.value = Math.max(...arrayidinforme) + 1;
-          }else if (arrayidproceso.length == 0 && arrayidinforme.length != 0){
-            id.value =  1;
+          } else if (arrayidproceso.length == 0 && arrayidinforme.length != 0) {
+            id.value = 1;
             id_informe.value = Math.max(...arrayidinforme) + 1;
-          }else{
-             id.value =  1;
-             id_informe.value = 1;
+          } else {
+            id.value = 1;
+            id_informe.value = 1;
           }
         }
       }
     };
 
-    const habilitarFecha = computed(()=>{
-      return !store.state.editar
+    const habilitarFecha = computed(() => {
+      return !store.state.editar;
     });
 
     return {
@@ -401,8 +342,6 @@ export default {
       editarFor,
       lineas,
       procesos,
-      materiales,
-      tipos_materiales,
       generar_ids,
       id_informe,
       id,
@@ -413,8 +352,6 @@ export default {
       completado,
       id_linea,
       id_proceso,
-      id_material,
-      id_tipo_material,
     };
   },
 };

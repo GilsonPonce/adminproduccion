@@ -59,20 +59,20 @@
           </thead>
           <tbody>
             <tr v-for="(value, index) in filtro" :key="index" id="cuerpoTabla">
-              <th scope="row" v-if="pagina === 'color'">
+             <th scope="row" v-if="pagina === 'color'">
                 {{ value.id_color }}
-              </th>
+              </th> 
               <th scope="row" v-if="pagina === 'linea'">
                 {{ value.id_linea }}
               </th>
-              <th scope="row" v-if="pagina === 'material'">
+             <th scope="row" v-if="pagina === 'material'">
                 {{ value.id_material }}
               </th>
               <th scope="row" v-if="pagina === 'tipo_material'">
                 {{ value.id_tipo_material }}
               </th>
-              <th scope="row" v-if="pagina === 'tipo_desperdicio'">
-                {{ value.id_tipo_desperdicio }}
+              <th scope="row" v-if="pagina === 'tipo_scrap'">
+                {{ value.id_tipo_scrap }}
               </th>
               <th scope="row" v-if="pagina === 'proceso'">
                 {{ value.id_proceso }}
@@ -92,20 +92,27 @@
               <th scope="row" v-if="pagina === 'scrap'">
                 {{ value.id_scrap }}
               </th>
-              <td v-if="pagina === 'registro'">
+              <th scope="row" v-if="pagina === 'usuario'">
+                {{ value.id_usuario }}
+              </th>
+              <th scope="row" v-if="pagina === 'registro'">
+                {{ value.id_registro }}
+              </th>
+              <!-- ojo -->
+               <td v-if="pagina === 'registro'">
                 {{ value.fecha_hora_inicio }}
               </td>
               <td v-if="pagina === 'registro'">
                 {{ value.fecha_hora_fin }}
               </td>
               <td v-if="pagina === 'registro'">
-                {{ value.activo == 1 ? 'Si' : 'No' }}
+                {{ value.activo == 1 ? "Si" : "No" }}
               </td>
-              <th scope="row" v-if="pagina === 'registro'">
-                {{ value.id_registro }}
-              </th>
               <td v-if="pagina === 'registro'">
                 {{ value.personal }}
+              </td>
+              <td v-if="pagina === 'registro'">
+                {{ value.motivo }}
               </td>
               <td v-if="pagina === 'producto_terminado'">
                 {{ value.color }}
@@ -121,7 +128,8 @@
               </td>
               <td v-if="pagina === 'producto_terminado'">
                 {{ value.tipo }}
-              </td>
+              </td> 
+               <!-- ojo -->
               <td v-if="habilitarLinea">
                 {{ value.linea }}
               </td>
@@ -149,13 +157,23 @@
               <td v-if="pagina === 'configuracion'">
                 {{ value.tarifa_kilogramo_producidos }}
               </td>
-              <td v-if="habilitarNombre">{{ value.nombre }}</td>
-              <td v-if="pagina === 'personal'">
-                {{ value.apellido }}
-              </td>
-              <td v-if="pagina === 'personal'">
+               <td v-if="pagina === 'usuario'">
                 {{ value.cedula }}
               </td>
+              <td v-if="habilitarNombre">{{ value.nombre }}</td>
+             
+              <td v-if="habilitarApellido">
+                {{ value.apellido }}
+              </td>
+               
+              <td v-if="habilitarCedula">
+                {{ value.cedula }}
+              </td>
+             
+              <td v-if="pagina === 'usuario'">
+                {{ value.correo }}
+              </td>
+             
               <td v-if="pagina === 'proceso'">{{ value.linea }}</td>
               <td class="text-end">
                 <button
@@ -194,6 +212,7 @@ export default {
     const valorParametro = ref("");
 
     onMounted(async () => {
+      store.state.loading = true
       await store.dispatch("fetchData", props.pagina);
     });
 
@@ -211,99 +230,116 @@ export default {
 
       switch (props.pagina) {
         case "color":
-          if (store.state.color.length != 0) {
-            onedata = store.state.color.detalle[0];
+          if (store.state.color && store.state.color.length != 0) {
+            if(store.state.color.detalle.length != 0){
+              onedata = store.state.color.detalle[0];
+            }else{
+              head = ["#", "nombre"];
+            }
           } else {
             head = ["#", "nombre"];
           }
           break;
         case "linea":
-          if (store.state.linea.length != 0) {
-            onedata = store.state.linea.detalle[0];
+          if (store.state.linea && store.state.linea.length != 0) {
+            store.state.linea.detalle.length != 0 ? onedata = store.state.linea.detalle[0] : head = ["#", "nombre"];
           } else {
             head = ["#", "nombre"];
           }
           break;
         case "material":
-          if (store.state.material.length != 0) {
-            onedata = store.state.material.detalle[0];
+          if (store.state.material?.length != 0) {
+            store.state.material.detalle ? onedata = store.state.material.detalle[0] : head = ["#", "nombre"] ;
           } else {
             head = ["#", "nombre"];
           }
           break;
         case "tipo_material":
-          if (store.state.tipo_material.length != 0) {
-            onedata = store.state.tipo_material.detalle[0];
+          if (store.state.tipo_material?.length != 0) {
+            store.state.tipo_material.detalle.length != 0 ? onedata = store.state.tipo_material.detalle[0] : head = ["#", "nombre"] ;
           } else {
             head = ["#", "nombre"];
           }
           break;
-        case "tipo_desperdicio":
-          if (store.state.tipo_desperdicio.length != 0) {
-            onedata = store.state.tipo_desperdicio.detalle[0];
+        case "tipo_scrap":
+          if (store.state.tipo_desperdicio && store.state.tipo_desperdicio.length != 0) {
+            if(store.state.tipo_desperdicio.detalle.length != 0){
+              onedata = store.state.tipo_desperdicio.detalle[0];
+            }else{
+              head = ["#", "nombre"];
+            }
           } else {
             head = ["#", "nombre"];
           }
           break;
         case "proceso":
-          if (store.state.proceso.length != 0) {
-            onedata = store.state.proceso.detalle[0];
+          if (store.state.proceso?.length != 0) {
+            store.state.proceso.detalle.length != 0 ? onedata = store.state.proceso.detalle[0] : head = ["#", "nombre", "linea"] ;
           } else {
             head = ["#", "nombre", "linea"];
           }
           break;
         case "configuracion":
-          if (store.state.configuracion.length != 0) {
-            onedata = store.state.configuracion.detalle[0];
+          if (store.state.configuracion?.length != 0) {
+             store.state.configuracion.detalle.length != 0 ? onedata = store.state.configuracion.detalle[0] : head = ["#", "nombre", "linea"];
           } else {
             head = ["#", "nombre", "linea"];
           }
           break;
         case "personal":
-          if (store.state.personal.length != 0) {
-            onedata = store.state.personal.detalle[0];
+          if (store.state.personal?.length != 0) {
+            store.state.personal.detalle.length != 0 ? onedata = store.state.personal.detalle[0] : head = ["#", "nombre", "apellido","cedula"];
           } else {
-            head = ["#", "nombre", "linea"];
+            head = ["#", "nombre", "apellido","cedula"];
           }
           break;
         case "producto_terminado":
-          if (store.state.producto_terminado.length != 0) {
-            onedata = store.state.producto_terminado.detalle[0];
+          if (store.state.producto_terminado?.length != 0) {
+            store.state.producto_terminado.detalle.length != 0 ? onedata = store.state.producto_terminado.detalle[0] : head = ["#", "informe", "color","peso","tipo"];
           } else {
-            head = ["#", "nombre", "linea"];
+            head = ["#", "informe", "color","peso","tipo"];
           }
           break;
         case "materia_prima":
-          if (store.state.materia_prima.length != 0) {
-            onedata = store.state.materia_prima.detalle[0];
+          if (store.state.materia_prima?.length != 0) {
+            store.state.materia_prima.detalle.length != 0 ? onedata = store.state.materia_prima.detalle[0] : head = ["#", "informe", "color","peso"] ;
           } else {
-            head = ["#", "nombre", "linea"];
+            head = ["#", "informe", "color","peso"];
           }
           break;
         case "scrap":
-          if (store.state.scrap.length != 0) {
-            onedata = store.state.scrap.detalle[0];
+          if (store.state.scrap?.length != 0) {
+           store.state.scrap.detalle.length != 0 ? onedata = store.state.scrap.detalle[0] : head = ["#", "motivo", "sacos","peso"];;
           } else {
-            head = ["#", "nombre", "linea"];
+            head = ["#", "motivo", "sacos","peso"];
           }
           break;
         case "registro":
-          if (store.state.registro.length != 0) {
-            onedata = store.state.registro.detalle[0];
+          if (store.state.registro?.length != 0) {
+             store.state.registro.detalle.length != 0 ? onedata = store.state.registro.detalle[0] : head = ["#", "Fecha Inicio", "Fecha Fin","Motivo"];
           } else {
-            head = ["#", "nombre", "linea"];
+            head = ["#", "Fecha Inicio", "Fecha Fin","Motivo"];
+          }
+          break;
+        case "usuario":
+          if (store.state.usuario?.length != 0) {
+            //onedata = store.state.usuario.detalle[0];
+            head = ["#","Cedula","Nombre", "Apellido","Correo"];
+          } else {
+            head = ["#","Cedula","Nombre", "Apellido","Correo"];
           }
           break;
         default:
           head = ["#", "nombre"];
       }
 
-      for (const name in onedata) {
-        let startWithId = name.substring(0, 2) == "id" ? true : false;
-        let idPagina = name === "id_" + props.pagina ? true : false;
+      if(onedata && onedata.length != 0){
+        for (const name in onedata) {
+        let startWithId = name.substring(0, 2) == "id" ? true : false; //si comienza con id
+        let idPagina = name === "id_" + props.pagina ? true : false; //id_pagina
         let numero = Number.isInteger(parseInt(name));
         if (idPagina) {
-          head.push("#");
+          head.unshift("#");
         } else {
           if (!startWithId && !numero) {
             if (name.indexOf("_") < 0) {
@@ -316,6 +352,7 @@ export default {
         }
       }
 
+      }
       return head;
     });
 
@@ -324,68 +361,76 @@ export default {
       let onedata = {};
       switch (props.pagina) {
         case "color":
-          if (store.state.color.length != 0) {
+          if (store.state.color && store.state.color?.length != 0) {
             onedata = store.state.color.detalle[0];
           }
           break;
         case "linea":
-          if (store.state.linea.length != 0) {
+          if (store.state.linea?.length != 0) {
             onedata = store.state.linea.detalle[0];
           }
           break;
         case "material":
-          if (store.state.material.length != 0) {
+          if (store.state.material?.length != 0) {
             onedata = store.state.material.detalle[0];
           }
           break;
         case "tipo_material":
-          if (store.state.tipo_material.length != 0) {
+          if (store.state.tipo_material?.length != 0) {
             onedata = store.state.tipo_material.detalle[0];
           }
           break;
-        case "tipo_desperdicio":
-          if (store.state.tipo_desperdicio.length != 0) {
+        case "tipo_scrap":
+          if (store.state.tipo_desperdicio && store.state.tipo_desperdicio.length != 0) {
             onedata = store.state.tipo_desperdicio.detalle[0];
           }
           break;
         case "proceso":
-          if (store.state.proceso.length != 0) {
+          if (store.state.proceso?.length != 0) {
             onedata = store.state.proceso.detalle[0];
           }
           break;
         case "configuracion":
-          if (store.state.configuracion.length != 0) {
+          if (store.state.configuracion?.length != 0) {
             onedata = store.state.configuracion.detalle[0];
           }
           break;
         case "personal":
-          if (store.state.personal.length != 0) {
+          if (store.state.personal?.length != 0) {
             onedata = store.state.personal.detalle[0];
           }
           break;
         case "producto_terminado":
-          if (store.state.producto_terminado.length != 0) {
+          if (store.state.producto_terminado?.length != 0) {
             onedata = store.state.producto_terminado.detalle[0];
           }
           break;
         case "materia_prima":
-          if (store.state.materia_prima.length != 0) {
+          if (store.state.materia_prima?.length != 0) {
             onedata = store.state.materia_prima.detalle[0];
           }
           break;
         case "scrap":
-          if (store.state.scrap.length != 0) {
+          if (store.state.scrap?.length != 0) {
             onedata = store.state.scrap.detalle[0];
           }
           break;
         case "registro":
-          if (store.state.registro.length != 0) {
+          if (store.state.registro?.length != 0) {
             onedata = store.state.registro.detalle[0];
+          }
+          break;
+        case "usuario":
+          if (store.state.usuario?.length != 0) {
+            onedata = {nombre:"",apellido:"",cedula:"",correo:"",id_usuario:""};
           }
           break;
       }
       for (const name in onedata) {
-        h.push(name);
+        let numero = Number.isInteger(parseInt(name));
+        if(!numero){
+          h.push(name);
+        }
       }
       return h;
     });
@@ -405,7 +450,7 @@ export default {
         case "tipo_material":
           arrdata = store.state.tipo_material.detalle;
           break;
-        case "tipo_desperdicio":
+        case "tipo_scrap":
           arrdata = store.state.tipo_desperdicio.detalle;
           break;
         case "proceso":
@@ -429,11 +474,16 @@ export default {
         case "registro":
           arrdata = store.getters.getFiltroRGT;
           break;
+        case "usuario":
+          arrdata = store.state.usuario.detalle;
+          break;
       }
+
       if (valorBuscar.value != "" && valorParametro.value != "") {
         return arrdata.filter(
-          (col) =>
+          (col) => 
             col[valorParametro.value].indexOf(valorBuscar.value.toUpperCase()) >
+            -1 || col[valorParametro.value].indexOf(valorBuscar.value) >
             -1
         );
       } else {
@@ -450,7 +500,7 @@ export default {
           case "tipo_material":
             return store.state.tipo_material.detalle;
             break;
-          case "tipo_desperdicio":
+          case "tipo_scrap":
             return store.state.tipo_desperdicio.detalle;
             break;
           case "proceso":
@@ -474,6 +524,9 @@ export default {
           case "registro":
             return store.getters.getFiltroRGT;
             break;
+          case "usuario":
+            return store.state.usuario.detalle;
+            break;
         }
       }
     });
@@ -486,7 +539,7 @@ export default {
       if (objeto != "" || objeto != null || objeto != undefined) {
         swal({
           title: "Seguro que quieres elimminar?",
-          text: "Pueden que se eliminen materias primas y productos terminados",
+          text: "Puede que se eliminen las relaciones con otros datos",
           icon: "warning",
           buttons: true,
           dangerMode: true,
@@ -495,13 +548,13 @@ export default {
             objeto.pagina = props.pagina;
             store.dispatch("deleteData", objeto);
             store.dispatch("fetchData", props.pagina);
-            setTimeout(() => {
-              if (store.state.msm.status != 200) {
-                swal("Se ha produccido un error", {
+            
+              if (store.state.msm?.status == 404) {
+                swal(store.state.msm?.detalle, {
                   icon: "error",
                 });
               }
-            }, 300);
+            
           } else {
             swal("Bien, en otro momento sera!");
           }
@@ -522,10 +575,11 @@ export default {
       let v2 = props.pagina == "linea";
       let v3 = props.pagina == "tipo_material";
       let v4 = props.pagina == "material";
-      let v5 = props.pagina == "tipo_desperdicio";
+      let v5 = props.pagina == "tipo_scrap";
       let v6 = props.pagina == "proceso";
       let v7 = props.pagina == "personal";
-      if (v1 || v2 || v3 || v4 || v5 || v6 || v7) {
+      let v8 = props.pagina == "usuario"
+      if (v1 || v2 || v3 || v4 || v5 || v6 || v7 || v8) {
         return true;
       } else {
         return false;
@@ -568,7 +622,6 @@ export default {
     const habilitarTipoMaterial = computed(() => {
       let v1 = props.pagina == "configuracion";
       let v2 = props.pagina == "producto_terminado";
-
       let v3 = props.pagina == "materia_prima";
 
       if (v1 || v2 || v3) {
@@ -577,12 +630,32 @@ export default {
         return false;
       }
     });
-     const habilitarPeso = computed(() => {
+    const habilitarPeso = computed(() => {
       let v2 = props.pagina == "producto_terminado";
       let v3 = props.pagina == "materia_prima";
       let v4 = props.pagina == "scrap";
 
-      if ( v2 || v3 || v4) {
+      if (v2 || v3 || v4) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+    const habilitarCedula = computed(() => {
+      let v2 = props.pagina == "personal";
+
+      if (v2) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+    const habilitarApellido = computed(() => {
+      let v2 = props.pagina == "personal";
+      let v3 = props.pagina == "usuario";
+     
+
+      if (v2 || v3 ) {
         return true;
       } else {
         return false;
@@ -601,6 +674,8 @@ export default {
       habilitarMaterial,
       habilitarTipoMaterial,
       habilitarPeso,
+      habilitarApellido,
+      habilitarCedula,
       editar,
       valorBuscar,
       valorParametro,

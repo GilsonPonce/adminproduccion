@@ -8,7 +8,7 @@
       </div>
     </div>
   </div>
-  <tableShow nombreTabla="Configuracion" pagina="color" />
+  <tableShow nombreTabla="Colores" pagina="color" />
 </template>
 <script>
 import tableShow from "@/components/tableShow.vue";

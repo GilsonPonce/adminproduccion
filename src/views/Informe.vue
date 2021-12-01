@@ -123,10 +123,9 @@ export default {
       return h;
     });
 
-    const activar = computed(() => {
-      console.log("activar");
+    const activar =() => {
       store.state.formulario = true;
-    });
+    };
 
     const activarFormulario = computed(() => {
       return store.state.formulario;

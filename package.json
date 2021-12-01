@@ -8,12 +8,18 @@
   },
   "dependencies": {
     "@fortawesome/vue-fontawesome": "^3.0.0-3",
+    "axios": "^0.21.1",
     "bcrypt": "^5.0.1",
     "core-js": "^3.6.5",
     "password-hash": "^1.2.2",
     "sweetalert": "^2.1.2",
     "sweetalert2": "^10.16.6",
     "vue": "^3.0.0",
+    "vue-axios": "^3.2.4",
+    "vue-cookie": "^1.1.4",
+    "vue-cookies": "^1.7.4",
+    "vue-json-excel": "^0.3.0",
+    "vue-pdf": "^4.3.0",
     "vue-router": "^4.0.0-0",
     "vuex": "^4.0.0-0"
   },

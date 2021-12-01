@@ -75,27 +75,26 @@ export default {
     const postData = computed(() => {
       //POST
       if (nombre.value != "" && !store.state.editar) {
+        store.state.loading = true
         let obje = {
           nombre: nombre.value,
-          pagina: props.pagina
+          pagina: props.pagina,
         };
         store.dispatch("postData", obje);
-        store.dispatch("fetchData", props.pagina);
-        setTimeout(() => {
-          if (store.state.msm.status == 200) {
-            nombre.value = "";
-            store.commit("falseFormulario");
-          } else {
-            store.commit("falseFormulario");
-            swal("Error en registros", "", "warning");
-          }
-        }, 500);
+        nombre.value = "";
+        store.commit("falseFormulario");
+
+        if (store.state.msm?.status == 404) {
+          swal(store.state.msm?.detalle, "", "warning");
+        }
+
         //PUT
       } else if (nombre.value != "" && store.state.editar) {
-        let obj={
+        store.state.loading = true
+        let obj = {
           nombre: nombre.value,
-          pagina: props.pagina
-        }
+          pagina: props.pagina,
+        };
         switch (props.pagina) {
           case "color":
             obj.id_color = store.state.objetoEditar.id_color;
@@ -109,26 +108,21 @@ export default {
           case "tipo_material":
             obj.id_tipo_material = store.state.objetoEditar.id_tipo_material;
             break;
-          case "tipo_desperdicio":
-            obj.id_tipo_desperdicio = store.state.objetoEditar.id_tipo_desperdicio;
+          case "tipo_scrap":
+            obj.id_scrap = store.state.objetoEditar.id_tipo_scrap;
             break;
         }
         store.dispatch("putData", obj);
-        store.dispatch("fetchData", props.pagina);
-        setTimeout(() => {
-          if (store.state.msm.status == 200) {
-            store.state.editar = false;
-            store.state.objetoEditar = {};
-            store.state.formulario = false;
-            nombre.value = "";
-          } else {
-            swal(
-              "Lo siento, se ha producido un error",
-              "Ponte en contacto con el administrador",
-              "warning"
-            );
-          }
-        }, 300);
+        //store.dispatch("fetchData", props.pagina);
+
+        store.state.editar = false;
+        store.state.objetoEditar = {};
+        store.state.formulario = false;
+        nombre.value = "";
+
+        if (store.state.msm?.status == 404) {
+          swal(store.state.msm?.detalle, "", "warning");
+        }
       } else {
         swal(
           "Por favor, llena el campo",

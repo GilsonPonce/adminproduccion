@@ -1,4 +1,7 @@
 <template>
+<div v-if="loading" class="mb-4">
+ <Spinner />
+</div>
 <div v-if="navegacion" class="mb-4">
  <Nav />
 </div>
@@ -11,11 +14,12 @@
 import { useRoute, useRouter } from "vue-router";
 import Nav from "@/components/nav.vue";
 import Login from "@/components/login.vue";
+import Spinner from "@/components/spinner.vue";
 import { computed } from 'vue';
 import { useStore } from "vuex";
 export default {
   components: {
-    Nav,Login
+    Nav,Login,Spinner
   },
   setup(){
     const store = useStore();
@@ -29,8 +33,12 @@ export default {
       }
     })
 
+    const loading = computed(()=>{
+      return store.state.loading;
+    })
+
     
-    return{navegacion}
+    return{navegacion,loading}
   }
 }
 </script>

@@ -2,23 +2,6 @@
   <div class="container">
     <div class="row">
       <div class="col-6 mt-2">
-        <label for="idlinea" class="form-label form-label-sm">Linea:</label>
-        <select
-          id="idlinea"
-          class="form-select form-select-sm"
-          aria-label=".form-select-sm example"
-          v-model="id_linea"
-        >
-          <option
-            v-for="li in lineas"
-            v-bind:value="li.id_linea"
-            v-bind:key="li.id_linea"
-          >
-            {{ li.nombre }}
-          </option>
-        </select>
-      </div>
-      <div class="col-6 mt-2">
         <label for="idproceso" class="form-label form-label-sm">Proceso:</label>
         <select
           id="idproceso"
@@ -26,6 +9,7 @@
           aria-label=".form-select-sm example"
           v-model="id_proceso"
           :disabled="id_linea == ''"
+          @change="cambioProceso"
         >
           <option
             v-for="pro in procesos"
@@ -41,17 +25,19 @@
           >Material:</label
         >
         <select
-          id="idmaterial"
+          id="idselectmaterial"
+          ref="selectMaterial"
           class="form-select form-select-sm"
           aria-label=".form-select-sm example"
-          v-model="id_material"
+          v-model="material"
+          :disabled = "bloqueomaterial"
         >
           <option
-            v-for="mate in materiales"
-            v-bind:value="mate.id_material"
-            v-bind:key="mate.id_material"
+            v-for="(mate,index) in materiales"
+            v-bind:value="mate"
+            v-bind:key="index"
           >
-            {{ mate.nombre }}
+            {{ mate }}
           </option>
         </select>
       </div>
@@ -60,31 +46,33 @@
           >Tipo Material:</label
         >
         <select
-          id="idtipomaterial"
+          id="idselecttipomaterial"
+          ref="selectMaterial"
           class="form-select form-select-sm"
           aria-label=".form-select-sm example"
-          v-model="id_tipo_material"
+          v-model="tipo_material"
+          :disabled="material==''"
         >
           <option
-            v-for="tipoma in tipos_materiales"
-            v-bind:value="tipoma.id_tipo_material"
-            v-bind:key="tipoma.id_tipo_material"
+            v-for="(tipoma,index) in tipos_materiales"
+            v-bind:value="tipoma"
+            v-bind:key="index"
           >
-            {{ tipoma.nombre }}
+            {{ tipoma }}
           </option>
         </select>
       </div>
       <div class="col-6 mt-2">
         <label for="color" class="form-label form-label-sm">Color:</label>
         <select
-          id="color"
+          id="selectcolor"
           class="form-select form-select-sm"
           aria-label=".form-select-sm example"
-          v-model="id_color"
+          v-model="color"
         >
           <option
             v-for="co in colores"
-            v-bind:value="co.id_color"
+            v-bind:value="co.nombre"
             v-bind:key="co.id_color"
           >
             {{ co.nombre }}
@@ -122,23 +110,32 @@ export default {
 
     const id_linea = ref("");
     const id_proceso = ref("");
-    const id_tipo_material = ref("");
-    const id_material = ref("");
-    const id_color = ref("");
+    const tipo_material = ref("");
+    const material = ref("");
+    const color = ref("");
     const id_configuracion = ref("");
     const peso = ref("");
     const id_informe = ref("");
+    const selectMaterial = ref(null)
 
     onMounted(async () => {
-      await store.dispatch("fetchData", "linea");
-      await store.dispatch("fetchData", "proceso");
-      await store.dispatch("fetchData", "tipo_material");
-      await store.dispatch("fetchData", "material");
+      store.state.loading = true;
       await store.dispatch("fetchData", "configuracion");
       await store.dispatch("fetchData", "color");
+      await store.dispatch("fetchData", "proceso");
     });
 
+     const GetInfoInforme = () => {
+      let info = store.state.informe?.detalle.filter((infor) => {
+        if (infor.id_informe == route.params.id) {
+          return infor;
+        }
+      });
+      id_linea.value = info[0].id_linea;
+    };
+
     const inicio = () => {
+      GetInfoInforme()
       if (store.state.editar) {
         if (
           store.state.objetoEditar != null ||
@@ -148,9 +145,9 @@ export default {
           id_informe.value = store.state.objetoEditar.id_informe;
           peso.value = store.state.objetoEditar.peso;
           id_configuracion.value = store.state.objetoEditar.id_configuracion;
-          id_color.value = store.state.objetoEditar.id_color;
-          id_material.value = store.state.objetoEditar.id_material;
-          id_tipo_material.value = store.state.objetoEditar.id_tipo_material;
+          color.value = store.state.objetoEditar.color;
+          material.value = store.state.objetoEditar.material;
+          tipo_material.value = store.state.objetoEditar.tipo_material;
           id_proceso.value = store.state.objetoEditar.id_proceso;
           id_linea.value = store.state.objetoEditar.id_linea;
         } else {
@@ -159,11 +156,10 @@ export default {
       } else {
         id_informe.value = route.params.id;
         peso.value = "";
-        id_linea.value = "";
         id_proceso.value = "";
-        id_tipo_material.value = "";
-        id_material.value = "";
-        id_color.value = "";
+        tipo_material.value = "";
+        material.value = "";
+        color.value = "";
         id_configuracion.value = "";
       }
     };
@@ -175,59 +171,42 @@ export default {
       store.state.objetoEditar = {};
       id_informe.value = route.params.id;
       peso.value = "";
-      id_linea.value = "";
       id_proceso.value = "";
-      id_tipo_material.value = "";
-      id_material.value = "";
-      id_color.value = "";
+      tipo_material.value = "";
+      material.value = "";
+      color.value = "";
       id_configuracion.value = "";
     };
 
-    const idConfiguracion = () => {
-        let objetoConfiguracion = store.state.configuracion.detalle.find((obj)=>{
-          if(
-              obj.id_linea == id_linea.value &&
-              obj.id_proceso == id_proceso.value &&
-              obj.id_material == id_material.value &&
-              obj.id_tipo_material == id_tipo_material.value &&
-              obj.estado > 0
-          ){
-              return obj
-          }
-      });
-      id_configuracion.value = objetoConfiguracion.id_configuracion
-    }
-
     const enviar = () => {
-        idConfiguracion();
       //POST
       if (
         id_informe.value != "" &&
         peso.value != "" &&
-        id_configuracion.value != "" &&
-        id_color.value != ""
+        color.value != ""
       ) {
         if (!store.state.editar) {
 
           let obj = {
             id_informe: id_informe.value,
             peso: peso.value,
-            id_configuracion: id_configuracion.value,
-            id_color: id_color.value,
+            id_proceso: id_proceso.value,
+            material: material.value,
+            tipo_material: tipo_material.value,
+            color: color.value,
             pagina: "materia_prima",
           };
           store.dispatch("postData", obj);
           store.dispatch("fetchData", "materia_prima");
-          setTimeout(() => {
-            if (store.state.msm.status != 200) {
+            if (store.state.msm?.status == 404) {
               swal({
-                title: "Lo siento, hubo un error",
+                title: store.state.msm.detalle,
                 icon: "error",
               });
             } else {
               cerrar();
             }
-          }, 500);
+          
 
           //PUT
         } else {
@@ -235,17 +214,19 @@ export default {
             id_materia_prima: store.state.objetoEditar.id_materia_prima,
             id_informe: id_informe.value,
             peso: peso.value,
-            id_configuracion: id_configuracion.value,
-            id_color: id_color.value,
+            id_proceso: id_proceso.value,
+            material: material.value,
+            tipo_material: tipo_material.value,
+            color: color.value,
             pagina: "materia_prima",
           };
           store.dispatch("putData", obj);
           store.dispatch("fetchData", "materia_prima");
           setTimeout(() => {
-            if (store.state.msm.status != "200") {
+            if (store.state.msm.status == 404) {
               store.state.formulario = false;
               swal({
-                title: "Lo siento, hubo un error",
+                title:store.state.msm.detalle,
                 icon: "error",
               });
             } else {
@@ -262,20 +243,61 @@ export default {
       }
     };
 
-    const lineas = computed(() => {
-      return store.state.linea.detalle;
-    });
-
     const procesos = computed(() => {
-     return id_linea.value != "" && store.state.configuracion.status == 200 ? store.state.proceso.detalle.filter((obj)=>obj.id_linea == id_linea.value) : "";
+     return id_linea.value != ""  ? store.state.proceso.detalle?.filter((obj)=>obj.id_linea == id_linea.value) : "";
     });
 
     const materiales = computed(() => {
-      return store.state.material.detalle;
+      if (id_linea.value?.length != 0 && id_proceso.value?.length != 0) {
+        let filtroByProcesoAndLinea = store.state.configuracion.detalle?.filter(
+          (valor) => {
+            let vali1 = valor.id_linea === id_linea.value;
+            let vali2 = valor.id_proceso === id_proceso.value;
+            if (vali1 && vali2) {
+              return valor;
+            }
+          }
+        );
+
+        let arrayNombreMaterialesDisponibles = filtroByProcesoAndLinea?.map(
+          (confi) => {
+            return confi.material;
+          }
+        );
+    
+        return Array.from(new Set(arrayNombreMaterialesDisponibles));
+      } else {
+        material.value = ""
+        return [];
+      }
     });
 
     const tipos_materiales = computed(() => {
-      return store.state.tipo_material.detalle;
+      if (
+        id_linea.value?.length != 0 &&
+        id_proceso.value?.length != 0 &&
+        material.value.length != 0
+      ) {
+        let filtroByProcesoAndLineaAndMaterial = store.state.configuracion?.detalle.filter(
+          (valor) => {
+            let vali1 = valor.id_linea === id_linea.value;
+            let vali2 = valor.id_proceso === id_proceso.value;
+            let vali3 = valor.material === material.value;
+            if (vali1 && vali2 && vali3) {
+              return valor;
+            }
+          }
+        );
+        let arrayNombreTipoMaterialesDisponibles = filtroByProcesoAndLineaAndMaterial?.map(
+          (confi) => {
+            return confi.tipo_material;
+          }
+        );
+        return Array.from(new Set(arrayNombreTipoMaterialesDisponibles));
+      } else { 
+        tipo_material.value = ""
+        return [];
+      }
     });
 
     const colores = computed(() => {
@@ -286,24 +308,39 @@ export default {
       return store.state.editar;
     });
 
+    const cambioProceso = computed(()=>{
+      material.value = ""
+      tipo_material.value = ""
+    })
+
+    const bloqueomaterial = computed(()=>{
+      if (id_proceso.value == ''){
+        return true
+      }else{
+        return false
+      }
+    })
+
     return {
+      GetInfoInforme,
+      cambioProceso,
+      bloqueomaterial,
       cerrar,
       editar,
       enviar,
-      lineas,
       procesos,
       tipos_materiales,
       materiales,
       colores,
       id_linea,
       id_proceso,
-      id_material,
-      id_tipo_material,
-      id_color,
+      material,
+      tipo_material,
+      selectMaterial,
+      color,
       id_configuracion,
       id_informe,
       peso,
-      idConfiguracion,
     };
   },
 };

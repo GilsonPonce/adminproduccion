@@ -37,7 +37,7 @@
           class="form-control form-control-sm"
           id="codigo"
           v-model="id_personal"
-          :disabled = "editarFor"
+          :disabled="editarFor"
         />
       </div>
       <div class="col-12">
@@ -113,6 +113,7 @@ export default {
     const postData = computed(() => {
       //POST
       if (nombre.value != "" && !store.state.editar) {
+        store.state.loading = true;
         let obje = {
           id_personal: id_personal.value,
           apellido: apellido.value,
@@ -121,18 +122,19 @@ export default {
           pagina: props.pagina,
         };
         store.dispatch("postData", obje);
-        store.dispatch("fetchData", props.pagina);
-        setTimeout(() => {
-          if (store.state.msm.status == 200) {
-            nombre.value = "";
-            store.commit("falseFormulario");
-          } else {
-            store.commit("falseFormulario");
-            swal("Error en registros", "", "warning");
-          }
-        }, 500);
+        //store.dispatch("fetchData", props.pagina);
+
+        nombre.value = "";
+        store.commit("falseFormulario");
+
+        if (store.state.msm?.status == 404) {
+          store.commit("falseFormulario");
+          swal(store.state.msm?.detalle, "", "warning");
+        }
+
         //PUT
       } else if (store.state.editar) {
+        store.state.loading = true;
         let obj = {
           id_personal: store.state.objetoEditar.id_personal,
           apellido: apellido.value,
@@ -141,24 +143,23 @@ export default {
           pagina: props.pagina,
         };
         store.dispatch("putData", obj);
-        store.dispatch("fetchData", props.pagina);
-        setTimeout(() => {
-          if (store.state.msm.status == 200) {
-            store.state.editar = false;
-            store.state.objetoEditar = {};
-            store.state.formulario = false;
-            nombre.value = "";
-            apellido.value = "";
-            cedula.value = "";
-            id_personal.value = "";
-          } else {
-            swal(
-              "Lo siento, se ha producido un error",
-              "Ponte en contacto con el administrador",
-              "error"
-            );
-          }
-        }, 500);
+        //store.dispatch("fetchData", props.pagina);
+
+        store.state.editar = false;
+        store.state.objetoEditar = {};
+        store.state.formulario = false;
+        nombre.value = "";
+        apellido.value = "";
+        cedula.value = "";
+        id_personal.value = "";
+
+        if (store.state.msm?.status == 404) {
+          swal(
+            store.state.msm?.detalle,
+            "Ponte en contacto con el administrador",
+            "error"
+          );
+        }
       } else {
         swal(
           "Por favor, llena el campo",
@@ -168,12 +169,14 @@ export default {
       }
     });
 
-    const generarCodigo = ()=>{
-        return id_personal.value =  cedula.value.substring(cedula.value.length - 4)
+    const generarCodigo = () => {
+      return (id_personal.value = cedula.value.substring(
+        cedula.value.length - 4
+      ));
     };
 
-    const editarFor = computed(()=>{
-        return store.state.editar
+    const editarFor = computed(() => {
+      return store.state.editar;
     });
 
     return {
